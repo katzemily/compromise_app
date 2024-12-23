@@ -14,11 +14,11 @@ ui <- fluidPage(
       card(
         card_header("Points Summary"),
         layout_columns(
-          uiOutput("points_used_box"),
-          uiOutput("points_left_box")
+          uiOutput("logistics_points_used_box"),
+          uiOutput("logistics_points_left_box")
         ),
         card_body(
-          progressBar("progress",
+          progressBar("logistics_progress",
                       value = 20,
                       total = 20, 
                       status = "primary")
@@ -40,7 +40,42 @@ ui <- fluidPage(
       )
     ),
     tabPanel(
-      title = "Personality"
+      title = "Personality",
+      h5("Please allocate your 20 points across the following categories."),
+      card(
+        card_header("Points Summary"),
+        layout_columns(
+          uiOutput("personality_points_used_box"),
+          uiOutput("personality_points_left_box")
+        ),
+        card_body(
+          progressBar("personality_progress",
+                      value = 20,
+                      total = 20, 
+                      status = "primary")
+        )
+      ),
+      card(
+        layout_columns(
+          card(
+            sliderInput("funny", "Funny/Sense of Humor", 0, 20, 0, step = 1),
+            sliderInput("charisma", "Charming/Charismatic", 0, 20, 0, step = 1),
+            sliderInput("kind", "Kind", 0, 20, 0, step = 1),
+            sliderInput("confident", "Confident", 0, 20, 0, step = 1),
+            sliderInput("outgoing", "Outgoing", 0, 20, 0, step = 1),
+            sliderInput("ambitious", "Ambitious", 0, 20, 0, step = 1),
+            sliderInput("curiosity", "Curiosity", 0, 20, 0, step = 1)
+          ),
+          card(
+            sliderInput("mystery", "Mysterious", 0, 20, 0, step = 1),
+            sliderInput("spontaneous", "Spontaneous", 0, 20, 0, step = 1),
+            sliderInput("smart", "Smart", 0, 20, 0, step = 1),
+            sliderInput("talented", "Multi-Talented", 0, 20, 0, step = 1),
+            sliderInput("calm", "Calmness", 0, 20, 0, step = 1),
+            sliderInput("emotional_intellgience", "Emotional Intelligence", 0, 20, 0, step = 1)
+          )
+        )
+      )
     ),
     tabPanel(
       title = "Background"
@@ -56,18 +91,18 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   # Calculate the number of points used so far
-  points_used <- reactive({
+  logistics_points_used <- reactive({
     sum(input$planner, input$texter, input$clean, input$time, input$schedule, input$nearby)
   })
   
   # Calculate how many points are left
-  points_left <- reactive({
-    20 - points_used()
+  logistics_points_left <- reactive({
+    20 - logistics_points_used()
   })
   
   # Create a dynamic value box for points left
-  output$points_left_box <- renderUI({
-    remaining <- points_left()
+  output$logistics_points_left_box <- renderUI({
+    remaining <- logistics_points_left()
     theme <- if (remaining < 0) "danger" else "secondary"
     
     value_box(title = "Points Left",
@@ -76,24 +111,24 @@ server <- function(input, output, session) {
   })
   
   # Create a dynamic value box for points used
-  output$points_used_box <- renderUI({
-    used <- points_used()
+  output$logistics_points_used_box <- renderUI({
+    used <- logistics_points_used()
     theme <- if (used == 20) "success" else "secondary"
     
     value_box(title = "Points Used",
-              value =   textOutput("points_used"),
+              value =   textOutput("logistics_points_used"),
               theme = theme)
   })
   
   # Update progress bar
   observe({
-    remaining <- points_left()
+    remaining <- logistics_points_left()
     
     display_value <- if (remaining < 0) 0 else remaining
     
     updateProgressBar(
       session = session,
-      id = "progress",
+      id = "logistics_progress",
       value = display_value,
       total = 20
     )
@@ -106,12 +141,12 @@ server <- function(input, output, session) {
     }
   })
   
-  output$points_used <- renderText({
-    points_used()
+  output$logistics_points_used <- renderText({
+    logistics_points_used()
   })
   
-  output$points_left <- renderText({
-    points_left()
+  output$logistics_points_left <- renderText({
+    logistics_points_left()
   })
   
 }
