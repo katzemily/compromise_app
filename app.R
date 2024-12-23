@@ -5,37 +5,52 @@ library(shinyWidgets)
 library(shinyalert)
 
 
-
 ui <- fluidPage(
   titlePanel("Compromise App"),
-  h4("Logistics"),
-  h5("Please allocate your 20 points across the following categories."),
-  card(
-    card_header("Points Summary"),
-    layout_columns(
-      uiOutput("points_used_box"),
-      uiOutput("points_left_box")
-    ),
-    card_body(
-      progressBar("progress",
-                  value = 20,
-                  total = 20, 
-                  status = "primary")
-    )
-  ),
-  card(
-    layout_columns(
+  tabsetPanel(
+    tabPanel(
+      title = "Logistics",
+      h5("Please allocate your 20 points across the following categories."),
       card(
-        sliderInput("planner", "Good Planner", 0, 20, 0, step = 1),
-        sliderInput("texter", "Reliable Texter", 0, 20, 0, step = 1),
-        sliderInput("clean", "Clean/Organized", 0, 20, 0, step = 1)
+        card_header("Points Summary"),
+        layout_columns(
+          uiOutput("points_used_box"),
+          uiOutput("points_left_box")
+        ),
+        card_body(
+          progressBar("progress",
+                      value = 20,
+                      total = 20, 
+                      status = "primary")
+        )
       ),
       card(
-        sliderInput("time", "On Time", 0, 20, 0, step = 1),
-        sliderInput("schedule", "Easy Schedule", 0, 20, 0, step = 1),
-        sliderInput("nearby", "Lives Nearby", 0, 20, 0, step = 1)
+        layout_columns(
+          card(
+            sliderInput("planner", "Good Planner", 0, 20, 0, step = 1),
+            sliderInput("texter", "Reliable Texter", 0, 20, 0, step = 1),
+            sliderInput("clean", "Clean/Organized", 0, 20, 0, step = 1)
+          ),
+          card(
+            sliderInput("time", "On Time", 0, 20, 0, step = 1),
+            sliderInput("schedule", "Easy Schedule", 0, 20, 0, step = 1),
+            sliderInput("nearby", "Lives Nearby", 0, 20, 0, step = 1)
+          )
+        )
       )
-    )
+    ),
+    tabPanel(
+      title = "Personality"
+    ),
+    tabPanel(
+      title = "Background"
+    ),
+    tabPanel(
+      title = "Lifestyle"
+    ),
+    tabPanel(
+      title = "Physical"
+    ),
   )
 )
 
