@@ -1,3 +1,6 @@
+# Practicing with Shiny Modules
+
+#### Set-up ----
 library(shiny)
 library(tidyverse)
 library(bslib)
@@ -5,89 +8,53 @@ library(shinyWidgets)
 library(shinyalert)
 library(googlesheets4)
 
+# Get data
 gs4_deauth()
 
-
 traits_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1wBqv1IN2N1lfn0RjHbYddVvcsmverv7O0nee__xkye4/",
-           sheet = "Traits")
+                         sheet = "Traits")
 
-
+#### UI ----
 ui <- fluidPage(
   titlePanel("Compromise App"),
   tabsetPanel(
-    tabPanel(
-      title = "Logistics",
-      h5("Please allocate your 20 points across the following categories."),
-      card(
-        card_header("Points Summary"),
-        layout_columns(
-          uiOutput("logistics_points_used_box"),
-          uiOutput("logistics_points_left_box")
-        ),
-        card_body(
-          progressBar("logistics_progress",
-                      value = 20,
-                      total = 20, 
-                      status = "primary")
-        )
-      ),
-      card(
-        layout_columns(
-          card(
-            sliderInput("var1_logistics", "Good Planner", 0, 20, 0, step = 1),
-            sliderInput("var2_logistics", "Reliable Texter", 0, 20, 0, step = 1),
-            sliderInput("var3_logistics", "Clean/Organized", 0, 20, 0, step = 1)
+    # Create the different tabs from the traits dataset
+    lapply(seq_len(nrow(traits_raw))), function(i) {
+      tabPanel(
+        title = traits_raw$tab[i],
+        h5("Please allocate your 20 points across the following categories."),
+        card(
+          card_header("Points Summary"),
+          layout_columns(
+            uiOutput(str_glue("{traits_raw$tab[i]}_points_used_box")),
+            uiOutput(str_glue("{traits_raw$tab[i]}_points_left_box"))
           ),
-          card(
-            sliderInput("var4_logistics", "On Time", 0, 20, 0, step = 1),
-            sliderInput("var5_logistics", "Easy Schedule", 0, 20, 0, step = 1),
-            sliderInput("var6_logistics", "Lives Nearby", 0, 20, 0, step = 1)
+          card_body(
+            progressBar(str_glue("{traits_raw$tab[i]}_progress"),
+                        value = 20,
+                        total = 20, 
+                        status = "primary")
+          )
+        ),
+        card(
+          layout_columns(
+            card(
+              sliderInput(str_glue("var1_{traits_raw$tab[i]}"), traits_raw$var1[i], 0, 20, 0, step = 1),
+              sliderInput(str_glue("var2_{traits_raw$tab[i]}"), traits_raw$var2[i], 0, 20, 0, step = 1),
+              sliderInput(str_glue("var3_{traits_raw$tab[i]}"), traits_raw$var3[i], 0, 20, 0, step = 1),
+            ),
+            card(
+              sliderInput(str_glue("var4_{traits_raw$tab[i]}"), traits_raw$var4[i], 0, 20, 0, step = 1),
+              sliderInput(str_glue("var5_{traits_raw$tab[i]}"), traits_raw$var5[i], 0, 20, 0, step = 1),
+              sliderInput(str_glue("var6_{traits_raw$tab[i]}"), traits_raw$var6[i], 0, 20, 0, step = 1),
+            )
           )
         )
       )
-    ),
-    tabPanel(
-      title = "Personality",
-      h5("Please allocate your 20 points across the following categories."),
-      card(
-        card_header("Points Summary"),
-        layout_columns(
-          uiOutput("personality_points_used_box"),
-          uiOutput("personality_points_left_box")
-        ),
-        card_body(
-          progressBar("personality_progress",
-                      value = 20,
-                      total = 20, 
-                      status = "primary")
-        )
-      ),
-      card(
-        layout_columns(
-          card(
-            sliderInput("var1_personality", "Funny/Sense of Humor", 0, 20, 0, step = 1),
-            sliderInput("var2_personality", "Charming/Charismatic", 0, 20, 0, step = 1),
-            sliderInput("var3_personality", "Kind", 0, 20, 0, step = 1)
-          ),
-          card(
-            sliderInput("var4_personality", "Confident", 0, 20, 0, step = 1),
-            sliderInput("var5_personality", "Outgoing", 0, 20, 0, step = 1),
-            sliderInput("var6_personality", "Ambitious", 0, 20, 0, step = 1)
-          )
-        )
-      )
-    ),
-    tabPanel(
-      title = "Background"
-    ),
-    tabPanel(
-      title = "Lifestyle"
-    ),
-    tabPanel(
-      title = "Physical"
-    ),
+    }
   )
 )
+
 
 server <- function(input, output, session) {
   ## Logistics
