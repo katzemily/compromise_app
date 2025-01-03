@@ -14,6 +14,76 @@ gs4_deauth()
 traits_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1wBqv1IN2N1lfn0RjHbYddVvcsmverv7O0nee__xkye4/",
                          sheet = "Traits")
 
+
+tab_UI <- function(id, traits_raw, i) {
+  ns <- NS(id)
+  tagList(
+    title = traits_raw$tab[i],
+    h5("Please allocate your 20 points across the following categories."),
+    card(
+      card_header("Points Summary"),
+      layout_columns(
+        uiOutput(ns("points_used_box")),
+        uiOutput(ns("points_left_box"))
+      ),
+      card_body(
+        progressBar(ns("progress"),
+                    value = 20,
+                    total = 20, 
+                    status = "primary")
+      )
+    ),
+    card(
+      layout_columns(
+        card(
+          sliderInput(ns("var1"), traits_raw$var1[i], 0, 20, 0, step = 1),
+          sliderInput(ns("var2"), traits_raw$var2[i], 0, 20, 0, step = 1),
+          sliderInput(ns("var3"), traits_raw$var3[i], 0, 20, 0, step = 1),
+        ),
+        card(
+          sliderInput(ns("var4"), traits_raw$var4[i], 0, 20, 0, step = 1),
+          sliderInput(ns("var5"), traits_raw$var5[i], 0, 20, 0, step = 1),
+          sliderInput(ns("var6"), traits_raw$var6[i], 0, 20, 0, step = 1),
+        )
+      )
+    )
+  )
+}
+
+tab_Server <- function(id) {
+  moduleServer(
+    id,
+    function(input, output, session) {
+      # Calculate the number of points used so far
+      points_used <- reactive({
+        sum(input$var1, 
+            input$var2, 
+            input$var3, 
+            input$var4, 
+            input$var5, 
+            input$var6)
+      })
+      
+      # Calculate how many points are left
+      points_left <- reactive({
+        20 - points_used()
+      })
+      
+      # Create a dynamic value box for points left
+      output$points_left_box <- renderUI({
+        remaining <- points_left()
+        theme <- if (remaining < 0) "danger" else "secondary"
+        
+        value_box(title = "Points Left",
+                  value =   textOutput("points_left"),
+                  theme = theme)
+      })
+      
+      
+    }
+  )
+}
+
 #### UI ----
 ui <- fluidPage(
   titlePanel("Compromise App"),
